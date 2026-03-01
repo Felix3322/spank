@@ -427,6 +427,19 @@ async function enableGyroIfAvailable() {
     }
   }
 
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const result = await DeviceOrientationEvent.requestPermission();
+      if (result !== 'granted') {
+        gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
+        return;
+      }
+    } catch (err) {
+      gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
+      return;
+    }
+  }
+
   window.addEventListener('devicemotion', (event) => {
     const rate = event.rotationRate;
     if (!rate) return;
