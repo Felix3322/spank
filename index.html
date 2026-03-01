@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Spank</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div id="tagText" class="tag">Mic + Audio Game</div>
+        <h1 id="titleText">Slap Detection · Play Audio</h1>
+        <p id="subtitleText">Allow the microphone, the system detects short slaps and plays random audio.</p>
+      </header>
+
+      <section class="panel">
+        <div class="row">
+          <button id="btnStart" class="primary">Start</button>
+          <button id="btnStop" class="ghost" disabled>Stop</button>
+          <a id="starBtn" class="ghost star" href="https://github.com/Felix3322/spank" target="_blank" rel="noopener noreferrer">Star</a>
+          <label id="langLabel" class="label" for="langSelect">Language</label>
+          <select id="langSelect">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+          <div id="status" class="status">Status: Idle</div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h2 id="audioSourceTitle">Audio Source</h2>
+            <label id="builtInLabel" class="label">Built-in folders</label>
+            <select id="presetSelect"></select>
+
+            <div id="dividerText" class="divider">or</div>
+
+            <label id="localFolderLabel" class="label">Choose local audio folder</label>
+            <input id="folderInput" type="file" webkitdirectory multiple />
+            <div id="localHint" class="hint">Supports `mp3` / `wav` / `ogg` (local browser only)</div>
+          </div>
+
+          <div class="card">
+            <h2 id="detectionTitle">Detection</h2>
+            <label id="sensitivityLabel" class="label">Sensitivity (peak threshold)</label>
+            <input id="peakThreshold" type="range" min="0.15" max="0.9" step="0.01" value="0.45" />
+            <div id="peakValue" class="value">0.45</div>
+
+            <label id="rmsLabel" class="label">Energy threshold (RMS)</label>
+            <input id="rmsThreshold" type="range" min="0.02" max="0.4" step="0.01" value="0.12" />
+            <div id="rmsValue" class="value">0.12</div>
+
+            <label id="cooldownLabel" class="label">Cooldown (ms)</label>
+            <input id="cooldown" type="range" min="150" max="1500" step="50" value="500" />
+            <div id="cooldownValue" class="value">500 ms</div>
+          </div>
+
+          <div class="card">
+            <h2 id="liveTitle">Live Feedback</h2>
+            <div class="meter">
+              <div id="meterBar" class="meter-bar"></div>
+            </div>
+            <div id="meterHint" class="hint">Higher peak/energy makes the bar brighter</div>
+            <div id="excitementLabel" class="label">Excitement</div>
+            <div class="meter">
+              <div id="excitementBar" class="meter-bar"></div>
+            </div>
+            <div class="value"><span id="excitementValueLabel">Excitement:</span> <span id="excitementValue">0.00</span></div>
+            <div id="gyroLabel" class="label">Gyroscope</div>
+            <div class="stat"><span id="gyroStatusLabel">Status:</span> <span id="gyroStatus">Off</span></div>
+            <div class="stat"><span id="gyroValueLabel">Rotation:</span> <span id="gyroValue">0.0</span> deg/s</div>
+            <div class="stat"><span id="slapsLabel">Slaps detected:</span> <span id="hitCount">0</span></div>
+            <div class="stat"><span id="tracksLabel">Tracks loaded:</span> <span id="trackCount">0</span></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span id="footerText">Tip: Microphone access requires `https://` or `http://localhost`.</span>
+      </footer>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
