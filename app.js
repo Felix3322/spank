@@ -149,7 +149,7 @@ const I18N = {
     star: 'Star on',
     language: 'Language',
     statusIdle: 'Status: Idle',
-    statusRequest: 'Status: Requesting mic...',
+    statusRequest: 'Status: Requesting mic... Disable noise suppression.',
     statusRunning: 'Status: Listening',
     statusStopped: 'Status: Stopped',
     statusNoMic: 'Status: Mic unavailable',
@@ -191,7 +191,7 @@ const I18N = {
     star: '在 GitHub 上点星',
     language: '语言',
     statusIdle: '状态：未开始',
-    statusRequest: '状态：请求麦克风权限...',
+    statusRequest: '状态：请求麦克风权限...请关闭麦克风降噪。',
     statusRunning: '状态：检测中',
     statusStopped: '状态：已停止',
     statusNoMic: '状态：无法访问麦克风',
@@ -491,7 +491,13 @@ async function startListening() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaStream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      noiseSuppression: false,
+      echoCancellation: false,
+      autoGainControl: false
+    }
+  });
   const source = audioCtx.createMediaStreamSource(mediaStream);
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 2048;
