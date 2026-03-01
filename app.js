@@ -1,4 +1,11 @@
 const AUDIO_LIBRARY = {
+  "from_me": [
+    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_001.mp3",
+    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_002.mp3",
+    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_003.mp3",
+    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_004.mp3",
+    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_005.mp3"
+  ],
   "halo": [
     "audio/halo/00.mp3",
     "audio/halo/01.mp3",
@@ -83,13 +90,6 @@ const AUDIO_LIBRARY = {
     "audio/sexy/57.mp3",
     "audio/sexy/58.mp3",
     "audio/sexy/59.mp3"
-  ],
-  "from_me": [
-    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_001.mp3",
-    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_002.mp3",
-    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_003.mp3",
-    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_004.mp3",
-    "audio/From ME!!!/Timeline 1_slices/Timeline 1_part_005.mp3"
   ]
 };
 
