@@ -98,6 +98,7 @@ const folderInput = document.getElementById('folderInput');
 const btnStart = document.getElementById('btnStart');
 const btnStop = document.getElementById('btnStop');
 const starBtn = document.getElementById('starBtn');
+const starText = document.getElementById('starText');
 const langSelect = document.getElementById('langSelect');
 const langLabel = document.getElementById('langLabel');
 const statusEl = document.getElementById('status');
@@ -145,7 +146,7 @@ const I18N = {
     subtitle: 'Allow the microphone, the system detects short slaps and plays random audio.',
     start: 'Start',
     stop: 'Stop',
-    star: 'Star',
+    star: 'Star on',
     language: 'Language',
     statusIdle: 'Status: Idle',
     statusRequest: 'Status: Requesting mic...',
@@ -186,7 +187,7 @@ const I18N = {
     subtitle: '允许麦克风后，系统会检测短促的拍打声并随机播放音频。',
     start: '开始检测',
     stop: '停止',
-    star: '收藏',
+    star: '在 GitHub 上点星',
     language: '语言',
     statusIdle: '状态：未开始',
     statusRequest: '状态：请求麦克风权限...',
@@ -243,6 +244,7 @@ let gyroListenerAttached = false;
 let lastHeartAt = 0;
 let lastTrack = null;
 const HEART_EXCITEMENT_THRESHOLD = 0.65;
+const WEB_ORIGIN = window.location.origin;
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -256,7 +258,7 @@ function applyLanguage() {
   if (subtitleText) subtitleText.textContent = t.subtitle;
   if (btnStart) btnStart.textContent = t.start;
   if (btnStop) btnStop.textContent = t.stop;
-  if (starBtn) starBtn.textContent = t.star;
+  if (starText) starText.textContent = t.star;
   if (langLabel) langLabel.textContent = t.language;
   if (audioSourceTitle) audioSourceTitle.textContent = t.audioSource;
   if (builtInLabel) builtInLabel.textContent = t.builtIn;
@@ -312,7 +314,7 @@ function usePreset(name) {
   if (name === 'local') {
     audioList = localUrls.length ? localUrls.slice() : [];
   } else {
-    audioList = (AUDIO_LIBRARY[name] || []).slice();
+    audioList = (AUDIO_LIBRARY[name] || []).map((item) => new URL(encodeURI(item), WEB_ORIGIN).toString());
   }
   trackCountEl.textContent = audioList.length.toString();
   presetSelect.classList.toggle('from-me', name === 'from_me');

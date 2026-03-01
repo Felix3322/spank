@@ -102,9 +102,16 @@ p {
 }
 
 .star {
-  border-color: rgba(255, 79, 139, 0.5);
-  color: var(--accent);
-  box-shadow: 0 10px 20px rgba(255, 79, 139, 0.15);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: none;
+  gap: 8px;
+}
+
+.gh-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
 .ghost:disabled,
@@ -189,6 +196,11 @@ select {
   background-repeat: no-repeat;
   padding-right: 40px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.menu {
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 select:focus {
