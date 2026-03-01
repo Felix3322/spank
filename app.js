@@ -129,6 +129,8 @@ const excitementLabel = document.getElementById('excitementLabel');
 const gyroLabel = document.getElementById('gyroLabel');
 const gyroStatusLabel = document.getElementById('gyroStatusLabel');
 const gyroValueLabel = document.getElementById('gyroValueLabel');
+const accelValueLabel = document.getElementById('accelValueLabel');
+const accelValue = document.getElementById('accelValue');
 const slapsLabel = document.getElementById('slapsLabel');
 const tracksLabel = document.getElementById('tracksLabel');
 const footerText = document.getElementById('footerText');
@@ -188,6 +190,7 @@ const I18N = {
     gyroNoData: 'No gyro data',
     gyroEnabled: 'Gyroscope enabled',
     rotation: 'Rotation: ',
+    acceleration: 'Acceleration: ',
     slaps: 'Slaps detected: ',
     tracks: 'Tracks loaded: ',
     footer: 'Tip: Microphone access requires https:// or http://localhost.'
@@ -234,6 +237,7 @@ const I18N = {
     gyroNoData: '无陀螺仪数据',
     gyroEnabled: '陀螺仪已启用',
     rotation: '旋转强度：',
+    acceleration: '加速度：',
     slaps: '检测到的拍打次数：',
     tracks: '当前音频列表：',
     footer: '提示：浏览器需要 https:// 或 http://localhost 才能使用麦克风。'
@@ -262,6 +266,8 @@ let lastTrack = null;
 const HEART_EXCITEMENT_THRESHOLD = 0.65;
 const WEB_ORIGIN = window.location.origin;
 let accelStrength = 0;
+const GYRO_TRIGGER = 35; // deg/s
+const ACCEL_TRIGGER = 12; // m/s^2 (including gravity)
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -297,6 +303,7 @@ function applyLanguage() {
   if (gyroLabel) gyroLabel.textContent = t.gyro;
   if (gyroStatusLabel) gyroStatusLabel.textContent = t.statusLabel || (currentLang === 'zh' ? '状态：' : 'Status:');
   if (gyroValueLabel) gyroValueLabel.textContent = t.rotation;
+  if (accelValueLabel) accelValueLabel.textContent = t.acceleration;
   if (slapsLabel) slapsLabel.textContent = t.slaps;
   if (tracksLabel) tracksLabel.textContent = t.tracks;
   if (footerText) footerText.textContent = t.footer;
@@ -449,6 +456,7 @@ async function enableGyroIfAvailable() {
     const acc = event.accelerationIncludingGravity;
     if (acc) {
       accelStrength = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
+      if (accelValue) accelValue.textContent = accelStrength.toFixed(1);
     }
   });
 
@@ -489,8 +497,14 @@ function tick() {
   const rmsThreshold = Number(rmsThresholdInput.value);
   const cooldown = Number(cooldownInput.value);
 
+  const micHit = peak > peakThreshold && rms > rmsThreshold;
+  const gyroHit = gyroStrength >= GYRO_TRIGGER;
+  const accelHit = accelStrength >= ACCEL_TRIGGER;
+  const motionHit = gyroHit || accelHit;
+  const shouldTrigger = micHit || motionHit;
+
   let isHit = false;
-  if (now - lastHitAt > cooldown && peak > peakThreshold && rms > rmsThreshold) {
+  if (now - lastHitAt > cooldown && shouldTrigger) {
     lastHitAt = now;
     hitCount += 1;
     hitCountEl.textContent = hitCount.toString();
@@ -505,6 +519,7 @@ function tick() {
     } else {
       gyroStatus.textContent = I18N[currentLang].gyroOn;
       gyroValue.textContent = gyroStrength.toFixed(1);
+      if (accelValue) accelValue.textContent = accelStrength.toFixed(1);
     }
   }
 
