@@ -101,6 +101,11 @@ const starBtn = document.getElementById('starBtn');
 const starText = document.getElementById('starText');
 const langSelect = document.getElementById('langSelect');
 const langLabel = document.getElementById('langLabel');
+const permissionModal = document.getElementById('permissionModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalCancel = document.getElementById('modalCancel');
+const modalConfirm = document.getElementById('modalConfirm');
 const statusEl = document.getElementById('status');
 const meterBar = document.getElementById('meterBar');
 const excitementBar = document.getElementById('excitementBar');
@@ -150,6 +155,11 @@ const I18N = {
     language: 'Language',
     statusIdle: 'Status: Idle',
     statusRequest: 'Status: Requesting mic... Disable noise suppression.',
+    modalTitle: 'Before Start',
+    modalBody:
+      'Please turn off microphone noise suppression if possible. We will request microphone and motion permissions.',
+    modalCancel: 'Cancel',
+    modalConfirm: 'Continue',
     statusRunning: 'Status: Listening',
     statusStopped: 'Status: Stopped',
     statusNoMic: 'Status: Mic unavailable',
@@ -192,6 +202,10 @@ const I18N = {
     language: '语言',
     statusIdle: '状态：未开始',
     statusRequest: '状态：请求麦克风权限...请关闭麦克风降噪。',
+    modalTitle: '开始前提示',
+    modalBody: '请尽量关闭麦克风降噪。我们将申请麦克风与运动传感器权限。',
+    modalCancel: '取消',
+    modalConfirm: '继续',
     statusRunning: '状态：检测中',
     statusStopped: '状态：已停止',
     statusNoMic: '状态：无法访问麦克风',
@@ -247,6 +261,7 @@ let lastHeartAt = 0;
 let lastTrack = null;
 const HEART_EXCITEMENT_THRESHOLD = 0.65;
 const WEB_ORIGIN = window.location.origin;
+let accelStrength = 0;
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -262,6 +277,10 @@ function applyLanguage() {
   if (btnStop) btnStop.textContent = t.stop;
   if (starText) starText.textContent = t.star;
   if (langLabel) langLabel.textContent = t.language;
+  if (modalTitle) modalTitle.textContent = t.modalTitle;
+  if (modalBody) modalBody.textContent = t.modalBody;
+  if (modalCancel) modalCancel.textContent = t.modalCancel;
+  if (modalConfirm) modalConfirm.textContent = t.modalConfirm;
   if (audioSourceTitle) audioSourceTitle.textContent = t.audioSource;
   if (builtInLabel) builtInLabel.textContent = t.builtIn;
   if (dividerText) dividerText.textContent = t.or;
@@ -416,24 +435,6 @@ async function enableGyroIfAvailable() {
   if (gyroListenerAttached) return;
   gyroListenerAttached = true;
 
-  if (
-    typeof DeviceMotionEvent !== 'undefined' &&
-    typeof DeviceMotionEvent.requestPermission === 'function'
-  ) {
-    try {
-      const result = await DeviceMotionEvent.requestPermission();
-      if (result !== 'granted') {
-        gyroStatus.textContent =
-          I18N[currentLang].gyroDenied || 'Permission denied';
-        return;
-      }
-    } catch (err) {
-      gyroStatus.textContent =
-        I18N[currentLang].gyroDenied || 'Permission denied';
-      return;
-    }
-  }
-
   window.addEventListener('devicemotion', (event) => {
     const rate = event.rotationRate;
     if (!rate) return;
@@ -444,10 +445,36 @@ async function enableGyroIfAvailable() {
     gyroStrength = Math.sqrt(x * x + y * y + z * z);
     lastGyroAt = performance.now();
     gyroEnabled = true;
+
+    const acc = event.accelerationIncludingGravity;
+    if (acc) {
+      accelStrength = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
+    }
   });
 
   gyroStatus.textContent =
     I18N[currentLang].gyroEnabled || 'Gyroscope enabled';
+}
+
+async function requestMotionPermissions() {
+  if (
+    typeof DeviceMotionEvent !== 'undefined' &&
+    typeof DeviceMotionEvent.requestPermission === 'function'
+  ) {
+    const result = await DeviceMotionEvent.requestPermission();
+    if (result !== 'granted') {
+      throw new Error('denied');
+    }
+  }
+  if (
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission === 'function'
+  ) {
+    const result = await DeviceOrientationEvent.requestPermission();
+    if (result !== 'granted') {
+      throw new Error('denied');
+    }
+  }
 }
 
 function tick() {
@@ -535,16 +562,33 @@ function stopListening() {
 }
 
 btnStart.addEventListener('click', async () => {
+  permissionModal.classList.remove('hidden');
+  permissionModal.setAttribute('aria-hidden', 'false');
+});
+
+btnStop.addEventListener('click', () => {
+  stopListening();
+});
+
+modalCancel.addEventListener('click', () => {
+  permissionModal.classList.add('hidden');
+  permissionModal.setAttribute('aria-hidden', 'true');
+});
+
+modalConfirm.addEventListener('click', async () => {
+  permissionModal.classList.add('hidden');
+  permissionModal.setAttribute('aria-hidden', 'true');
   setStatus(I18N[currentLang].statusRequest);
+  try {
+    await requestMotionPermissions();
+  } catch (err) {
+    gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
+  }
   try {
     await startListening();
   } catch (err) {
     setStatus(I18N[currentLang].statusNoMic);
   }
-});
-
-btnStop.addEventListener('click', () => {
-  stopListening();
 });
 
 folderInput.addEventListener('change', (event) => {
