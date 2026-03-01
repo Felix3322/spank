@@ -176,6 +176,7 @@ const I18N = {
     gyroOn: 'On',
     gyroDenied: 'Permission denied',
     gyroNoData: 'No gyro data',
+    gyroEnabled: 'Gyroscope enabled',
     rotation: 'Rotation: ',
     slaps: 'Slaps detected: ',
     tracks: 'Tracks loaded: ',
@@ -217,6 +218,7 @@ const I18N = {
     gyroOn: '已启用',
     gyroDenied: '权限被拒绝',
     gyroNoData: '无陀螺仪数据',
+    gyroEnabled: '陀螺仪已启用',
     rotation: '旋转强度：',
     slaps: '检测到的拍打次数：',
     tracks: '当前音频列表：',
@@ -414,28 +416,20 @@ async function enableGyroIfAvailable() {
   if (gyroListenerAttached) return;
   gyroListenerAttached = true;
 
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+  if (
+    typeof DeviceMotionEvent !== 'undefined' &&
+    typeof DeviceMotionEvent.requestPermission === 'function'
+  ) {
     try {
       const result = await DeviceMotionEvent.requestPermission();
       if (result !== 'granted') {
-        gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
+        gyroStatus.textContent =
+          I18N[currentLang].gyroDenied || 'Permission denied';
         return;
       }
     } catch (err) {
-      gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
-      return;
-    }
-  }
-
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    try {
-      const result = await DeviceOrientationEvent.requestPermission();
-      if (result !== 'granted') {
-        gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
-        return;
-      }
-    } catch (err) {
-      gyroStatus.textContent = I18N[currentLang].gyroDenied || 'Permission denied';
+      gyroStatus.textContent =
+        I18N[currentLang].gyroDenied || 'Permission denied';
       return;
     }
   }
@@ -443,6 +437,7 @@ async function enableGyroIfAvailable() {
   window.addEventListener('devicemotion', (event) => {
     const rate = event.rotationRate;
     if (!rate) return;
+
     const x = rate.alpha || 0;
     const y = rate.beta || 0;
     const z = rate.gamma || 0;
@@ -451,7 +446,8 @@ async function enableGyroIfAvailable() {
     gyroEnabled = true;
   });
 
-  gyroStatus.textContent = I18N[currentLang].gyroOn;
+  gyroStatus.textContent =
+    I18N[currentLang].gyroEnabled || 'Gyroscope enabled';
 }
 
 function tick() {
